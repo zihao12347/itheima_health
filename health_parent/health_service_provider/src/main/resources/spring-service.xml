@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:tx="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                            http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/mvc
+                            http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                            http://code.alibabatech.com/schema/dubbo
+                            http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+                            http://www.springframework.org/schema/context
+                            http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
+    <!--配置fastdsf文件传输的配置-->
+    <mvc:annotation-driven>
+        <mvc:message-converters register-defaults="true">
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes" value="application/json"/>
+                <property name="features">
+                    <list>
+                        <value>WriteMapNullValue</value>
+                        <value>WriteDateUseDateFormat</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    <!--spring与freemark的配置整合-->
+    <bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer" id="configurer">
+        <!--指定文件模板所在的目录-->
+        <property name="templateLoaderPath" value="/WEB-INF/ftl/"></property>
+        <!--指定字符集编码-->
+        <property name="defaultEncoding" value="utf-8"></property>
+    </bean>
+    <!--引入freemarker.properties属性文件：改文件指定了静态页面生成的位置-->
+    <context:property-placeholder location="classpath:freemarker.properties"></context:property-placeholder>
+
+
+    <!-- 指定应用名称 -->
+    <dubbo:application name="health_service_provider"/>
+    <!--指定暴露服务的端口，如果不指定默认为20880-->
+    <dubbo:protocol name="dubbo" port="20887"/>
+    <!--指定服务注册中心地址-->
+    <dubbo:registry address="zookeeper://198.23.153.251:2181"/>
+    <!--批量扫描，发布服务-->
+    <dubbo:annotation package="com.itheima.service.impl"/>
+</beans>
