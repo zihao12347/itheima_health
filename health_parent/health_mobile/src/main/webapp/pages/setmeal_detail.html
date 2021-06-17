@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,user-scalable=no,minimal-ui">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../img/asset-favico.ico">
+    <title>预约详情</title>
+    <link rel="stylesheet" href="../css/page-health-orderDetail.css" />
+    <script src="../plugins/vue/vue.js"></script>
+    <script src="../plugins/vue/axios-0.18.0.js"></script>
+    <script src="../plugins/healthmobile.js"></script>
+    <script>
+        var id = getUrlParam("id"); //使用getUrlParam自定义js方法，获取传递过来的套餐id值
+    </script>
+</head>
+<body data-spy="scroll" data-target="#myNavbar" data-offset="150">
+<div id="app" class="app">
+    <!-- 页面头部 -->
+    <div class="top-header">
+        <span class="f-left"><i class="icon-back" onclick="history.go(-1)"></i></span>
+        <span class="center">传智健康</span>
+        <span class="f-right"><i class="icon-more"></i></span>
+    </div>
+    <!-- 页面内容 -->
+    <div class="contentBox">
+        <div class="card">
+            <div class="project-img">
+                <img :src="imgUrl" width="100%" height="100%" />
+            </div>
+            <div class="project-text">
+                <h4 class="tit">{{setmeal.name}}</h4>
+                <p class="subtit">{{setmeal.remark}}</p>
+                <p class="keywords">
+                    <span>{{setmeal.sex == '0' ? '性别不限' : setmeal.sex == '1' ? '男':'女'}}</span>
+                    <span>{{setmeal.age}}</span>
+                </p>
+            </div>
+            <!--<div class="project-know">
+                <a href="orderNotice.html" class="link-page">
+                    <i class="icon-ask-circle"><span class="path1"></span><span class="path2"></span></i>
+                    <span class="word">预约须知</span>
+                    <span class="arrow"><i class="icon-rit-arrow"></i></span>
+                </a>
+            </div>-->
+        </div>
+        <div class="table-listbox">
+            <div class="box-title">
+                <i class="icon-zhen"><span class="path1"></span><span class="path2"></span></i>
+                <span>套餐详情</span>
+            </div>
+            <div class="box-table">
+                <div class="table-title">
+                    <div class="tit-item flex2">项目名称</div>
+                    <div class="tit-item  flex3">项目内容</div>
+                    <div class="tit-item  flex3">项目解读</div>
+                </div>
+                <div class="table-content">
+                    <ul class="table-list">
+                        <!--获取套餐中对应的检查组数据-->
+                        <li class="table-item" v-for="checkgroup in setmeal.checkGroups">
+                            <div class="item flex2">{{checkgroup.name}}</div>
+                            <div class="item flex3">
+                                <!--获取检查组对应的检查项目数据-->
+                                <label v-for="checkitem in checkgroup.checkItems">
+                                    {{checkitem.name}}
+                                </label>
+                            </div>
+                            <div class="item flex3">{{checkgroup.remark}}</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="box-button" >
+                    <a @click="toOrderInfo()" class="order-btn">立即预约</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vue = new Vue({
+        el:'#app',
+        data:{
+            imgUrl:null,//套餐对应的图片链接
+            setmeal:{}
+        },
+        methods:{
+            toOrderInfo(){//当点击立即预约时，跳转到orderInfo.html文件中，并传递套餐的id
+                window.location.href = "orderInfo.html?id=" + id;
+            }
+        },
+        mounted(){//当页面加载后，发送ajax请求，根据套餐id查询套餐详情数据（包括套餐基本信息，套餐包括的检查组信息，检查组包括的检查项信息）
+            axios.get("/setmeal/findMealDeatailById.do?id="+id).then((res)=>{
+                if(res.data.flag){
+                    this.setmeal=res.data.data;//为setmeal模型数据赋值
+                    this.imgUrl=this.setmeal.img;//为imgUrl模型数据赋值，用于显示套餐图片
+                }else {
+                    this.$message.error("获取套餐详情数据失败，请重新加载页面！")
+                }
+            })
+        }
+    });
+</script>
+</body>
